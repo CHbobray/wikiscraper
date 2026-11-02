@@ -128,30 +128,36 @@ Coverage: `scraper` 96%, `jsonlines` 91%, `cmd/wikiscraper` 40% (the untested pa
 
 Parsing and extracting one page (`BenchmarkExtractText`) takes about 0.2 ms and 48 KB. The work is almost entirely waiting on the network, so the speed-up comes from overlapping requests, and it scales well beyond the number of CPU cores (2 here). Memory grows only slightly with parallelism.
 
-### Go vs. Python/Scrapy on the real pages
+### Real crawl of the 10 Wikipedia pages (measured)
 
-Fill this table by running both programs against Wikipedia on the same machine and network, three runs each:
+Measured on November 2, 2026, on a 12-core Windows PC over a home internet connection, using the prebuilt `wikiscraper.exe`. The crawl downloaded 10 pages and extracted 42,679 words. Timings were taken in PowerShell:
 
-```bash
-# Go
-time ./wikiscraper -parallel 1     # sequential
-time ./wikiscraper                 # concurrent (default 8)
-
-# Python/Scrapy, from the WebFocusedCrawl directory
-time scrapy crawl articles-spider -o items.jl
+```powershell
+Measure-Command { .\dist\windows\wikiscraper.exe -parallel 1 | Out-Default } | Select TotalSeconds
+Measure-Command { .\dist\windows\wikiscraper.exe | Out-Default } | Select TotalSeconds
 ```
 
-| Program | Run 1 | Run 2 | Run 3 | Mean |
+| Program | Crawl time (from the program) | Total run time (`Measure-Command`) | Peak heap | System memory |
 |---|---|---|---|---|
-| Python/Scrapy | | | | |
-| Go, `-parallel 1` | | | | |
-| Go, `-parallel 8` | | | | |
+| Go, `-parallel 1` (sequential) | 338 ms | 0.528 s | — | — |
+| Go, `-parallel 8` (concurrent) | 239 ms | 0.289 s | 19.9 MB | 58.7 MB |
+| Python/Scrapy (`articles-spider.py`) | | | | |
 
-Observations (update these with your numbers):
+*Crawl time* covers only the downloading and scraping; *total run time* also includes program start-up and writing the JSON Lines file. These are single runs; network timings vary by tens of milliseconds from run to run.
 
-- *Go is expected to beat a sequential crawl by roughly the parallelism factor, as the benchmark above shows.*
-- *Scrapy is also asynchronous (Twisted, 16 concurrent requests by default), so for only 10 pages the gap with Scrapy may be smaller than expected; much of Scrapy's time is interpreter and framework start-up. Go's advantage grows with hundreds or thousands of pages, where its lower per-page CPU cost and lighter goroutines matter.*
-- *For a 10-page crawl, network latency and Wikipedia's response time dominate; CPU cores matter less than the number of requests in flight.*
+To time the Python/Scrapy version for comparison, run this from the `WebFocusedCrawl` directory, deleting `items.jl` between runs because Scrapy appends to it:
+
+```powershell
+Measure-Command { scrapy crawl articles-spider -o items.jl | Out-Default } | Select TotalSeconds
+```
+
+Observations:
+
+- **Concurrency helped, but less than in the benchmark.** The concurrent crawl was about 1.4× faster than the sequential crawl (239 ms vs. 338 ms), and the whole program about 1.8× faster. In the benchmark above, where each page took 50 ms, the speed-up at parallelism 8 was 6.6×.
+- **Wikipedia is fast, which shrinks the gain.** Sequentially, each page took about 34 ms on average, because Wikipedia serves popular articles from nearby caches. With so little time spent waiting on each request, overlapping requests has less to save. The gain grows with slower sites, longer URL lists, or users farther from Wikipedia's servers.
+- **The whole job is small.** Ten pages finish in a quarter of a second either way, so program start-up and file writing make up a noticeable share of the total time.
+- **Memory stays modest.** The concurrent crawl peaked at about 20 MB of heap and 59 MB of memory reserved from the operating system, while extracting more than 42,000 words of text.
+- **Comparison with Scrapy.** Scrapy is also asynchronous (16 concurrent requests by default), so for 10 pages the difference from Go may be mostly start-up time: Python and Scrapy take noticeably longer to load than a compiled Go program. Go's lower per-page CPU cost and lightweight goroutines matter more as the crawl grows to hundreds or thousands of pages.
 
 ### Logs and profiles
 
@@ -161,7 +167,7 @@ Every run logs one line per page (title and word count, or the error) and, at th
 
 I used **Claude** (Anthropic, Claude Opus 5.5, in the claude.ai app) as a coding assistant for this assignment. I gave it the assignment description and grading guidelines; it proposed the package structure and wrote the first draft of the code, unit tests, synthetic test page, build script and this README. It ran the tests and benchmarks in its own sandbox, using a local mock Wikipedia server because its sandbox could not reach Wikipedia.
 
-I then *[describe your own part: reviewing the code, running the real crawl, filling in the timing table, changes you made]*.
+I then installed the dependencies with `go mod tidy`, ran the unit tests, and ran the real crawl on my Windows PC, which produced `wikipedia_pages.jl`. While timing the program in PowerShell I found that the Windows `.exe` waited for Enter even when started from a terminal; Claude fixed the check so it pauses only when the `.exe` is double-clicked. I recorded the timings above and published the repository on GitHub.
 
 The conversation log is in [`docs/GENAI_LOG.md`](docs/GENAI_LOG.md), with a link to the full conversation.
 

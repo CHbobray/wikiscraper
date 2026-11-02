@@ -18,8 +18,15 @@ I uploaded two screenshots of the assignment: the management problem, requiremen
 6. Wrote `scripts/build.sh`, which cross-compiles the Windows `.exe`, a macOS `.app` bundle (launcher plus Apple-silicon and Intel binaries), and a Linux binary.
 7. Drafted this README.
 
-The assistant's sandbox could not reach Wikipedia, so it could not run the real crawl or the Python comparison. I ran those myself (see below).
+The assistant's sandbox could not reach Wikipedia, so it could not run the real crawl. I ran it myself (see below).
+
+8. After I reported that the Windows `.exe` waited for Enter even when run from PowerShell, it replaced the "no arguments means double-clicked" check with a Windows API call (`GetConsoleProcessList`) that detects whether the program owns its console window (`console_windows.go`, `console_other.go`), and rebuilt the `.exe`.
+9. Wrote the README's real-crawl timing table and observations from the numbers I measured.
 
 ## What I did
 
-*[Fill in: reviewed the code; ran `go mod tidy`; ran the crawl and committed `wikipedia_pages.jl`; ran the Scrapy and Go timings and filled in the README table; any changes you made.]*
+- Extracted the project on my Windows PC, installed the dependencies with `go mod tidy`, and ran `go test ./...` (all tests passed).
+- Ran the real crawl: 10 pages, 42,679 words, written to `wikipedia_pages.jl`.
+- Timed the sequential (`-parallel 1`) and concurrent (default 8) crawls with PowerShell's `Measure-Command`: 0.528 s and 0.289 s in total.
+- Found the "Press Enter" bug while timing, reported it, and installed the fix.
+- Created the GitHub repository (https://github.com/CHbobray/wikiscraper) and pushed the project.
