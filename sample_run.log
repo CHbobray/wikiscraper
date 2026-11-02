@@ -1,0 +1,12 @@
+time=2026-11-02T17:27:47.443-06:00 level=INFO msg="starting crawl" pages=10 parallelism=8 cpus=12
+time=2026-11-02T17:27:47.629-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Robotic_process_automation title="Robotic process automation" words=2107
+time=2026-11-02T17:27:47.645-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Software_agent title="Software agent" words=2484
+time=2026-11-02T17:27:47.653-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Intelligent_agent title="Intelligent agent" words=2525
+time=2026-11-02T17:27:47.663-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Android_(robot) title="Android (robot)" words=2510
+time=2026-11-02T17:27:47.675-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Robot_Operating_System title="Robot Operating System" words=3655
+time=2026-11-02T17:27:47.688-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Chatbot title=Chatbot words=2988
+time=2026-11-02T17:27:47.693-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Robot title=Robot words=9178
+time=2026-11-02T17:27:47.700-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Robotics title=Robotics words=4698
+time=2026-11-02T17:27:47.703-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Applications_of_artificial_intelligence title="Applications of artificial intelligence" words=6823
+time=2026-11-02T17:27:47.759-06:00 level=INFO msg="scraped page" url=https://en.wikipedia.org/wiki/Reinforcement_learning title="Reinforcement learning" words=5711
+time=2026-11-02T17:27:47.955-06:00 level=INFO msg="memory use" heap_alloc_mb=3.0 total_alloc_mb=99.8 sys_mb=58.7 gc_cycles=15 goroutines=2
