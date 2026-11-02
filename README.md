@@ -13,6 +13,7 @@ wikiscraper  ──►  10 Wikipedia pages fetched in parallel (goroutines via C
 | Path | Role |
 |---|---|
 | `cmd/wikiscraper/main.go` | Command-line application: flags, input validation, logging, profiling, output |
+| `cmd/wikiscraper/console_windows.go`, `console_other.go` | Detect whether the `.exe` was double-clicked, so the window waits for Enter only then |
 | `scraper/scraper.go` | Concurrent crawler built on Colly (`Scrape`, `Config`, `Page`) |
 | `scraper/extract.go` | Turns a Wikipedia HTML page into clean text (removes citations, infoboxes, navboxes, tables, references…) |
 | `scraper/urls.go` | Default URL list (same as the Scrapy spider), URL-file parsing and validation |
@@ -20,6 +21,8 @@ wikiscraper  ──►  10 Wikipedia pages fetched in parallel (goroutines via C
 | `*_test.go`, `scraper/testdata/` | Unit tests, a synthetic Wikipedia page, and benchmarks |
 | `urls.txt` | Example URL file (the 10 target pages) |
 | `wikipedia_pages.jl` | **Deliverable:** text extracted from the crawl |
+| `sample_run.log` | Log of a real crawl: one line per page, total time, memory use |
+| `cpu.prof`, `mem.prof` | CPU and heap profiles from the same run (see *Logs and profiles*) |
 | `scripts/build.sh` | Builds the Windows `.exe`, macOS `.app`, and Linux binaries into `dist/` |
 | `dist/` | Prebuilt executables |
 | `docs/GENAI_LOG.md` | Record of how generative AI was used |
@@ -162,6 +165,14 @@ Observations:
 ### Logs and profiles
 
 Every run logs one line per page (title and word count, or the error) and, at the end, the total time and memory use (heap, total allocated, GC cycles, goroutines). `-log file` saves the log. `-cpuprofile` and `-memprofile` write profiles to inspect with `go tool pprof -top cpu.prof` or `go tool pprof -http=:8080 mem.prof`.
+
+The repository includes the output of one real run, made with:
+
+```powershell
+.\dist\windows\wikiscraper.exe -log sample_run.log -cpuprofile cpu.prof -memprofile mem.prof
+```
+
+That run scraped 10 pages (42,679 words) in 315 ms. At the end it held 3.0 MB on the heap, had allocated 99.8 MB in total across 15 garbage-collection cycles, and had reserved 58.7 MB from the operating system. Most of the allocation is short-lived HTML parsing, which the garbage collector reclaims quickly; that is why the final heap is small. Run `go tool pprof -top cpu.prof` to see which functions used the most CPU time during the crawl.
 
 ## GenAI Tools
 
