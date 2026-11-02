@@ -2,7 +2,7 @@
 
 **Tool:** Claude (Anthropic), model Claude Opus 5.5, in the claude.ai app
 **Date:** November 2, 2026
-**Full conversation:** *[paste the claude.ai share link here: in the conversation, choose Share → copy link]*
+**Full conversation:** https://claude.ai/share/9ce84f07-bce3-491f-865c-c114b9df010b
 
 ## What I asked
 
