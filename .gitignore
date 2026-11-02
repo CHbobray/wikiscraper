@@ -1,0 +1,10 @@
+# Profiles and logs produced by local runs
+*.prof
+*.log
+*.test
+
+# Build output for Linux only; the Windows .exe and macOS .app are committed
+# so graders can download and run them without installing Go.
+dist/linux/
+
+.DS_Store

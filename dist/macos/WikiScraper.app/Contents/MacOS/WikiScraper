@@ -1,0 +1,7 @@
+#!/bin/bash
+APP_DIR="$(cd "$(dirname "$0")" && pwd)"
+BINARY="$APP_DIR/wikiscraper-$(uname -m)"
+OUTPUT_DIR="$HOME/Documents/WikiScraper"
+mkdir -p "$OUTPUT_DIR"
+COMMAND="cd '$OUTPUT_DIR' && '$BINARY' -log wikiscraper.log; echo; echo 'Results are in $OUTPUT_DIR'; open '$OUTPUT_DIR'"
+osascript -e "tell application \"Terminal\" to do script \"$COMMAND\"" -e 'tell application "Terminal" to activate'
